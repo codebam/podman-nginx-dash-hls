@@ -52,14 +52,15 @@ hls="rtmp://localhost:1936/hls/stream"
 while true
 do
 	# notify-send -u critical "stream started"
-	ffmpeg -re -start_at_zero -copyts \
-            -ss $(( $(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 /home/codebam/livestream/*.flv) / 60 )) \
-            -i /home/codebam/livestream/*.flv \
+	ffmpeg -re -start_at_zero -copyts -ss $(( $(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 /home/codebam/livestream/*.flv) / 60 )) -i /home/codebam/livestream/*.flv \
             -framerate 60 \
-            -c:v libx264 -x264opts bitrate=1000:vbv-maxrate=50000:vbv-bufsize=50000 -rtbufsize 100M -c:a copy -preset:v superfast \
-            -tune zerolatency \
-            -movflags faststart \
-            -f flv "$dash" -f flv "$hls"
+            -c:v libx264 -x264opts bitrate=1000:vbv-maxrate=50000:vbv-bufsize=50000 -rtbufsize 100M \
+            -c:a copy -preset:v superfast -tune zerolatency -movflags faststart \
+            -f flv "$dash" \
+            -framerate 60 \
+            -c:v libx264 -x264opts bitrate=1000:vbv-maxrate=50000:vbv-bufsize=50000 -rtbufsize 100M \
+            -c:a copy -preset:v superfast -tune zerolatency -movflags faststart \
+            -f flv "$hls"
 	sleep 0.1
 done
 ```
