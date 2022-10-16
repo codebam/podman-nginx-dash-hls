@@ -1,0 +1,79 @@
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+}
+
+server {
+    root /stream;
+
+    index index.html index.htm;
+
+    server_name dash.seanbehan.ca;
+    autoindex on;
+
+    location /dash {
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+        add_header 'Access-Control-Allow-Headers' 'Range';
+        if ($request_method = 'OPTIONS') {
+	    add_header 'Access-Control-Allow-Origin' '*';
+	    add_header 'Access-Control-Allow-Headers' 'Range';
+	    add_header 'Access-Control-Max-Age' 1728000;
+	    add_header 'Content-Type' 'text/plain charset=UTF-8';
+	    add_header 'Content-Length' 0;
+	    return 204;
+        }
+        add_header Cache-Control no-cache;
+        types {
+            application/dash+xml mpd;
+            video/mp4 mp4;
+        }
+    }
+
+    location /hls {
+	add_header 'Access-Control-Allow-Origin' '*' always;
+	add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+	add_header 'Access-Control-Allow-Headers' 'Range';
+	if ($request_method = 'OPTIONS') {
+	    add_header 'Access-Control-Allow-Origin' '*';
+	    add_header 'Access-Control-Allow-Headers' 'Range';
+	    add_header 'Access-Control-Max-Age' 1728000;
+	    add_header 'Content-Type' 'text/plain charset=UTF-8';
+	    add_header 'Content-Length' 0;
+	    return 204;
+	}
+        add_header Cache-Control no-cache;
+        types {
+            application/octet-stream m3u8;
+            video/mp4 mp4;
+        }
+    }
+
+    listen [::]:443 ssl ipv6only=on;
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/dash.seanbehan.ca/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dash.seanbehan.ca/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+server {
+    if ($host = dash.seanbehan.ca) {
+        return 301 https://$host$request_uri;
+    }
+
+    listen 80 ;
+    listen [::]:80 ;
+    server_name dash.seanbehan.ca;
+    return 404;
+}
