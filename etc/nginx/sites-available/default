@@ -1,16 +1,16 @@
 server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-        root /var/www/html;
+    root /var/www/html;
 
-        index index.html index.htm index.nginx-debian.html;
+    index index.html index.htm index.nginx-debian.html;
 
-        server_name _;
+    server_name _;
 
-        location / {
-                try_files $uri $uri/ =404;
-        }
+    location / {
+        try_files $uri $uri/ =404;
+    }
 }
 
 server {
@@ -18,7 +18,7 @@ server {
 
     index index.html index.htm;
 
-    server_name dash.seanbehan.ca;
+    server_name live.seanbehan.ca rtmp.seanbehan.ca dash.seanbehan.ca hls.seanbehan.ca;
     autoindex on;
 
     location /dash {
