@@ -27,8 +27,8 @@ podman run -it --rm \
     --name certbot \
     -v /home/nginx/etc/letsencrypt:/etc/letsencrypt:z \
     -v /home/nginx/var/lib/letsencrypt:/var/lib/letsencrypt:z \
-    -v /home/nginx/usr/share/nginx:/usr/share/nginx:z \
-    certbot/certbot certonly --webroot-path /usr/share/nginx/html
+    -v /home/nginx/var/www/html:/var/www/html:z \
+    certbot/certbot certonly --webroot-path /var/www/html
 ```
 
 Modify your nginx config.
