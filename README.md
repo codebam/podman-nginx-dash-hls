@@ -46,28 +46,23 @@ Enable systemd services.
 Stream.
 
 ```
-dash="rtmp://localhost:1935/dash/stream"
-hls="rtmp://localhost:1936/hls/stream"
+live="rtmp://dash.seanbehan.ca/live_your_password/stream"
 
 while true
 do
 	# notify-send -u critical "stream started"
-	ffmpeg -re -start_at_zero -copyts -ss $(( $(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 /home/codebam/livestream/*.flv) / 60 )) -i /home/codebam/livestream/*.flv \
-            -framerate 60 \
-            -c:v libx264 -x264opts bitrate=1000:vbv-maxrate=50000:vbv-bufsize=50000 -rtbufsize 100M \
-            -c:a copy -preset:v superfast -tune zerolatency -movflags faststart \
-            -f flv "$dash" \
-            -framerate 60 \
-            -c:v libx264 -x264opts bitrate=1000:vbv-maxrate=50000:vbv-bufsize=50000 -rtbufsize 100M \
-            -c:a copy -preset:v superfast -tune zerolatency -movflags faststart \
-            -f flv "$hls"
+        ffmpeg -f mpegts -i udp://localhost:2000?buffer_size=1000000000 \
+            -c:v libx264 -x264opts bitrate=10000:vbv-maxrate=50000:vbv-bufsize=150000 -rtbufsize 150M \
+            -crf 30 -profile:v high -preset:v ultrafast -tune zerolatency -movflags faststart \
+            -c:a aac \
+            -f flv $live
 	sleep 0.1
 done
 ```
 
 Put your stream URL in dash.js or hls.js, or VLC.
 
-`https://localhost/dash/stream.mpd`
+`https://dash.seanbehan.ca/dash/stream.mpd`
 
-`https://localhost/hls/stream.m3u8`
+`https://dash.seanbehan.ca/hls/stream.m3u8`
 
